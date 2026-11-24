@@ -1,0 +1,177 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="water-page max-w-4xl mx-auto space-y-6">
+
+    <div class="flex items-center justify-between gap-3">
+        <div>
+            <a href="{% url 'courier:orders' %}"
+               class="text-sm text-water-600 hover:underline">
+                ← Buyurtmalarga qaytish
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900 mt-2">
+                #{{ order.order_number }}
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                {{ order.created_at|date:"d.m.Y H:i" }}
+            </p>
+        </div>
+
+        <span class="px-3 py-2 rounded-full bg-water-50 text-water-700 text-sm font-semibold">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+
+    <!-- Customer -->
+    <div class="water-card p-5 space-y-4">
+        <h2 class="font-bold text-slate-900">
+            Mijoz ma’lumotlari
+        </h2>
+
+        <div>
+            <p class="text-xs text-slate-500">Mijoz</p>
+            <p class="font-semibold text-slate-900">
+                {{ order.user.full_name }}
+            </p>
+        </div>
+
+        <div>
+            <p class="text-xs text-slate-500">Telefon</p>
+            <a href="tel:+{{ order.user.phone }}"
+               class="font-semibold text-water-600">
+                +{{ order.user.phone }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Address -->
+    <div class="water-card p-5 space-y-3">
+        <h2 class="font-bold text-slate-900">
+            Yetkazib berish manzili
+        </h2>
+
+        {% if order.address %}
+            <p class="text-sm text-slate-700">
+                {{ order.address.region }},
+                {{ order.address.district }},
+                {{ order.address.mahalla }},
+                {{ order.address.street }},
+                {{ order.address.house }}
+                {% if order.address.apartment %}
+                    , {{ order.address.apartment }}-xonadon
+                {% endif %}
+            </p>
+
+            {% if order.address.landmark %}
+                <p class="text-sm text-slate-500">
+                    Mo‘ljal: {{ order.address.landmark }}
+                </p>
+            {% endif %}
+
+            {% if order.address.latitude and order.address.longitude %}
+                <a
+                    href="https://www.google.com/maps?q={{ order.address.latitude }},{{ order.address.longitude }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-water-600 hover:underline"
+                >
+                    <i class="fa-solid fa-location-dot"></i>
+                    Xaritada ko‘rish
+                </a>
+            {% endif %}
+        {% else %}
+            <p class="text-sm text-red-600">
+                Buyurtmada manzil mavjud emas.
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Items -->
+    <div class="water-card p-5">
+        <h2 class="font-bold text-slate-900 mb-4">
+            Buyurtma tarkibi
+        </h2>
+
+        <div class="space-y-4">
+            {% for item in order.items.all %}
+                <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
+                    <div>
+                        <p class="font-medium text-slate-900">
+                            {{ item.product_name }}
+                        </p>
+                        <p class="text-sm text-slate-500">
+                            {{ item.quantity }} dona
+                        </p>
+                    </div>
+
+                    <p class="font-semibold text-slate-900 whitespace-nowrap">
+                        {{ item.total_price|floatformat:0 }} so‘m
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="flex justify-between items-center pt-4">
+            <span class="font-semibold text-slate-600">Jami</span>
+            <span class="text-xl font-bold text-slate-900">
+                {{ order.total_amount|floatformat:0 }} so‘m
+            </span>
+        </div>
+    </div>
+
+    {% if order.note %}
+        <div class="water-card p-5">
+            <h2 class="font-bold text-slate-900 mb-2">Buyurtma izohi</h2>
+            <p class="text-sm text-slate-600">{{ order.note }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="water-card p-5 space-y-3">
+        <h2 class="font-bold text-slate-900">Buyurtma boshqaruvi</h2>
+
+        {% if order.status == "confirmed" %}
+            <form method="post"
+                  action="{% url 'courier:accept_order' order.order_number %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full rounded-xl bg-water-600 hover:bg-water-700 text-white font-semibold py-3 px-5 transition">
+                    <i class="fa-solid fa-check mr-2"></i>
+                    Buyurtmani qabul qilish
+                </button>
+            </form>
+
+        {% elif order.status == "processing" %}
+            <form method="post"
+                  action="{% url 'courier:start_delivery' order.order_number %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full rounded-xl bg-water-600 hover:bg-water-700 text-white font-semibold py-3 px-5 transition">
+                    <i class="fa-solid fa-truck-fast mr-2"></i>
+                    Yetkazib berishni boshlash
+                </button>
+            </form>
+
+        {% elif order.status == "delivering" %}
+            <form method="post"
+                  action="{% url 'courier:complete_order' order.order_number %}"
+                  onsubmit="return confirm('Buyurtma mijozga yetkazilganini tasdiqlaysizmi?')">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-5 transition">
+                    <i class="fa-solid fa-circle-check mr-2"></i>
+                    Yetkazib berildi
+                </button>
+            </form>
+
+        {% elif order.status == "completed" %}
+            <div class="p-4 rounded-xl bg-emerald-50 text-emerald-700 text-center font-semibold">
+                <i class="fa-solid fa-check-circle mr-2"></i>
+                Buyurtma muvaffaqiyatli yakunlangan
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

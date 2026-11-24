@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+            <p class="text-gray-500 text-sm">
+                Volidam delivery boshqaruv paneli
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span id="ws-status"
+                  class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            <span id="ws-label" class="text-sm text-gray-500">
+                Connecting...
+            </span>
+        </div>
+    </div>
+    <a href="{% url 'dashboard:courier' %}">
+        <span class="text-sm text-gray-500">
+            Yetkazuvchilar: {{ courier_count }}
+        </span>
+    </a>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+
+        <div class="water-card p-5 rounded-2xl">
+            <p class="text-sm text-gray-500">Jami zakazlar</p>
+            <h2 class="text-2xl font-bold">{{ total_orders }}</h2>
+        </div>
+
+        <div class="water-card p-5 rounded-2xl">
+            <p class="text-sm text-gray-500">Yangi zakazlar</p>
+            <h2 class="text-2xl font-bold" id="pending-count">
+                {{ pending_orders }}
+            </h2>
+        </div>
+
+        <div class="water-card p-5 rounded-2xl">
+            <p class="text-sm text-gray-500">Yetkazilmoqda</p>
+            <h2 class="text-2xl font-bold">
+                {{ delivering_orders }}
+            </h2>
+        </div>
+
+        <div class="water-card p-5 rounded-2xl">
+            <p class="text-sm text-gray-500">Yakunlangan</p>
+            <h2 class="text-2xl font-bold">
+                {{ completed_orders }}
+            </h2>
+        </div>
+
+        <div class="water-card p-5 rounded-2xl">
+            <p class="text-sm text-gray-500">Kuryerlar</p>
+            <h2 class="text-2xl font-bold">
+                {{ total_couriers }}
+            </h2>
+        </div>
+
+    </div>
+
+    <!-- Realtime new orders -->
+    <div class="water-card rounded-2xl p-5 mb-8">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="font-bold text-lg">Zakazlar</h2>
+
+            <a href="{% url 'dashboard:orders' %}"
+               class="text-sm text-blue-600">
+                Barcha zakazlar
+            </a>
+        </div>
+
+        <div id="orders-container" class="space-y-3">
+
+            {% for order in orders %}
+            <div class="border rounded-xl p-4 flex flex-wrap
+                        items-center justify-between gap-4"
+                 data-order-id="{{ order.order_number }}">
+
+                <div>
+                    <h3 class="font-semibold">
+                        {{ order.order_number }}
+                    </h3>
+
+                    <p class="text-sm text-gray-500">
+                        {{ order.user.full_name|default:order.user.phone }}
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                        {{ order.created_at|date:"d.m.Y H:i" }}
+                    </p>
+                </div>
+
+                <div class="text-right">
+                    <p class="font-bold">
+                        {{ order.total_amount }} so'm
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                        {{ order.get_status_display }}
+                    </p>
+                </div>
+
+                <a href="{% url 'dashboard:order_detail' order.order_number %}"
+                   class="px-4 py-2 rounded-xl bg-blue-600
+                          text-white text-sm">
+                    Ko'rish
+                </a>
+
+            </div>
+            {% empty %}
+            <p class="text-gray-500 text-sm" id="empty-orders">
+                Hozircha zakazlar mavjud emas.
+            </p>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <!-- Courier tracking map will be added in next step -->
+    <div class="water-card rounded-2xl p-5">
+        <h2 class="font-bold text-lg mb-4">
+            Kuryerlar xaritasi
+        </h2>
+
+        <div id="courier-map"
+             class="w-full h-96 rounded-xl bg-gray-100
+                    flex items-center justify-center">
+            <p class="text-gray-500 text-sm">
+                Kuryer GPS ma'lumotlari kutilmoqda...
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const wsProtocol =
+        window.location.protocol === "https:" ? "wss" : "ws";
+
+    const wsStatus = document.getElementById("ws-status");
+    const wsLabel = document.getElementById("ws-label");
+
+    let socket = null;
+    let reconnectTimer = null;
+    let isManualClose = false;
+
+    function setConnectingUI() {
+        wsStatus.classList.remove("bg-green-500");
+        wsStatus.classList.add("bg-red-500");
+        wsLabel.textContent = "Connecting...";
+    }
+
+    function setConnectedUI() {
+        wsStatus.classList.remove("bg-red-500");
+        wsStatus.classList.add("bg-green-500");
+        wsLabel.textContent = "Realtime ulandi";
+    }
+
+    function setDisconnectedUI(text = "Ulanish uzildi") {
+        wsStatus.classList.remove("bg-green-500");
+        wsStatus.classList.add("bg-red-500");
+        wsLabel.textContent = text;
+    }
+
+    function connectAdminWS() {
+        if (
+            socket &&
+            (socket.readyState === WebSocket.OPEN ||
+                socket.readyState === WebSocket.CONNECTING)
+        ) {
+            if (socket.readyState === WebSocket.OPEN) {
+                setConnectedUI();
+            }
+            return;
+        }
+
+        clearTimeout(reconnectTimer);
+        isManualClose = false;
+        setConnectingUI();
+
+        socket = new WebSocket(
+            `${wsProtocol}://${window.location.host}/ws/admin/`
+        );
+
+        socket.onopen = () => {
+            setConnectedUI();
+        };
+
+        socket.onclose = () => {
+            setDisconnectedUI("Qayta ulanilmoqda...");
+            if (!isManualClose && document.visibilityState !== "hidden") {
+                reconnectTimer = setTimeout(connectAdminWS, 1500);
+            }
+        };
+
+        socket.onerror = () => {
+            setDisconnectedUI("WebSocket xatoligi");
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === "new_order") {
+                addNewOrder(data.order);
+            }
+
+            if (data.type === "courier_location") {
+                updateCourierLocation(data.location);
+            }
+
+            if (data.type === "order_status") {
+                updateOrderStatus(data.order);
+            }
+        };
+    }
+
+    // Oddiy yuklanish va Back/Forward (bfcache) dan qaytganda ishlaydi
+    window.addEventListener("pageshow", () => {
+        connectAdminWS();
+    });
+
+    // Tabga qaytgan payt ulanish uzilgan bo'lsa darhol tiklaydi
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            connectAdminWS();
+        }
+    });
+
+    // Boshqa sahifaga o'tayotganda eski socket'ni toza yopadi
+    window.addEventListener("pagehide", () => {
+        clearTimeout(reconnectTimer);
+        isManualClose = true;
+        if (
+            socket &&
+            (socket.readyState === WebSocket.OPEN ||
+                socket.readyState === WebSocket.CONNECTING)
+        ) {
+            socket.close(1000, "Page navigation");
+        }
+    });
+
+    function addNewOrder(order) {
+        const container =
+            document.getElementById("orders-container");
+
+        document.getElementById("empty-orders")?.remove();
+
+        if (container.querySelector(
+            `[data-order-id="${order.order_number}"]`
+        )) {
+            return;
+        }
+
+        const element = document.createElement("div");
+
+        element.className =
+            "border border-blue-300 rounded-xl p-4 flex " +
+            "flex-wrap items-center justify-between gap-4";
+
+        element.dataset.orderId = order.order_number;
+
+        const link = document.createElement("a");
+        link.href = `/dashboard/orders/${order.order_number}/`;
+        link.className =
+            "px-4 py-2 rounded-xl bg-blue-600 text-white text-sm";
+        link.textContent = "Ko'rish";
+
+        const info = document.createElement("div");
+
+        const number = document.createElement("h3");
+        number.className = "font-semibold";
+        number.textContent = order.order_number;
+
+        const customer = document.createElement("p");
+        customer.className = "text-sm text-gray-500";
+        customer.textContent = order.customer;
+
+        info.append(number, customer);
+
+        const amount = document.createElement("p");
+        amount.className = "font-bold";
+        amount.textContent = `${order.total_amount} so'm`;
+
+        element.append(info, amount, link);
+        container.prepend(element);
+
+        const counter = document.getElementById("pending-count");
+        counter.textContent =
+            Number(counter.textContent) + 1;
+    }
+
+    function updateCourierLocation(location) {
+        // Keyingi bosqichda Leaflet markerlarini yangilaymiz.
+        console.log("Courier location:", location);
+    }
+
+    function updateOrderStatus(order) {
+        // Keyingi bosqichda tegishli order card yangilanadi.
+        console.log("Order status:", order);
+    }
+</script>
+{% endblock %}

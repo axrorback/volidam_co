@@ -1,0 +1,164 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+
+    <a href="{% url 'dashboard:orders' %}"
+       class="text-sm text-blue-600">
+        ← Zakazlarga qaytish
+    </a>
+
+    <div class="flex flex-wrap justify-between items-center gap-4 mt-5 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold">
+                {{ order.order_number }}
+            </h1>
+            <p class="text-sm text-gray-500">
+                {{ order.created_at|date:"d.m.Y H:i" }}
+            </p>
+        </div>
+
+        <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-700">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+
+        <!-- Customer -->
+        <div class="water-card rounded-2xl p-5">
+            <h2 class="font-bold text-lg mb-4">
+                Customer
+            </h2>
+
+            <p>
+                <span class="text-gray-500">Ism:</span>
+                {{ order.user.full_name|default:"Ko'rsatilmagan" }}
+            </p>
+
+            <p class="mt-2">
+                <span class="text-gray-500">Telefon:</span>
+                {{ order.user.phone }}
+            </p>
+        </div>
+
+        <!-- Address -->
+        <div class="water-card rounded-2xl p-5">
+            <h2 class="font-bold text-lg mb-4">
+                Yetkazish manzili
+            </h2>
+
+            {% if order.address %}
+                <p>{{ order.address.region }}</p>
+                <p>{{ order.address.district }}</p>
+                <p>{{ order.address.mahalla }}</p>
+                <p>
+                    {{ order.address.street }},
+                    {{ order.address.house }}
+                </p>
+                <p>{{ order.address.apartment }}</p>
+                <p class="text-gray-500 mt-2">
+                    {{ order.address.landmark }}
+                </p>
+            {% else %}
+                <p class="text-red-500">
+                    Manzil mavjud emas.
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Items -->
+        <div class="water-card rounded-2xl p-5">
+            <h2 class="font-bold text-lg mb-4">
+                Zakaz tarkibi
+            </h2>
+
+            {% for item in order.items.all %}
+                <div class="flex justify-between py-3 border-b">
+                    <div>
+                        <p class="font-medium">
+                            {{ item.product_name }}
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            {{ item.quantity }} dona
+                        </p>
+                    </div>
+
+                    <p class="font-semibold">
+                        {{ item.total_price }} so'm
+                    </p>
+                </div>
+            {% endfor %}
+
+            <div class="flex justify-between font-bold mt-4">
+                <span>Jami</span>
+                <span>{{ order.total_amount }} so'm</span>
+            </div>
+        </div>
+
+        <!-- Courier assignment -->
+        <div class="water-card rounded-2xl p-5">
+            <h2 class="font-bold text-lg mb-4">
+                Kuryer biriktirish
+            </h2>
+
+            {% if order.courier %}
+                <div class="p-4 rounded-xl bg-green-50 mb-4">
+                    <p class="text-sm text-green-700">
+                        Biriktirilgan kuryer
+                    </p>
+
+                    <p class="font-bold">
+                        {{ order.courier.full_name|default:order.courier.phone }}
+                    </p>
+
+                    <p class="text-sm">
+                        {{ order.courier.phone }}
+                    </p>
+                </div>
+            {% endif %}
+
+            {% if order.status == "pending" %}
+
+                <form method="POST"
+                      action="{% url 'dashboard:assign_courier' order.order_number %}">
+                    {% csrf_token %}
+
+                    <label class="block text-sm font-medium mb-2">
+                        Kuryerni tanlang
+                    </label>
+
+                    <select name="courier"
+                            required
+                            class="w-full border rounded-xl p-3 mb-4">
+                        <option value="">Kuryer tanlang</option>
+
+                        {% for courier in courier %}
+                            <option value="{{ courier.id }}">
+                                {{ courier.full_name|default:courier.phone }}
+                                — {{ courier.phone }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white
+                                   rounded-xl py-3 font-semibold">
+                        Kuryerga biriktirish
+                    </button>
+                </form>
+
+            {% elif delivery %}
+                <p class="text-sm text-gray-500">
+                    Delivery holati:
+                    {{ delivery.get_status_display }}
+                </p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

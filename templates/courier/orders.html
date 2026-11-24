@@ -1,0 +1,78 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="water-page space-y-6">
+
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">
+            Mening buyurtmalarim
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+            Sizga biriktirilgan faol buyurtmalar.
+        </p>
+    </div>
+
+    <div class="space-y-3">
+        {% for order in orders %}
+            <a href="{% url 'courier:order_detail' order.order_number %}"
+               class="water-card p-5 block hover:shadow-md transition">
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-slate-900">
+                                #{{ order.order_number }}
+                            </h3>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-water-50 text-water-700 font-semibold">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+
+                        <p class="text-sm text-slate-600 mt-2">
+                            {{ order.user.full_name }}
+                        </p>
+
+                        <p class="text-sm text-slate-500 mt-1">
+                            {% if order.address %}
+                                {{ order.address.region }},
+                                {{ order.address.district }},
+                                {{ order.address.street }},
+                                {{ order.address.house }}
+                            {% else %}
+                                Manzil mavjud emas
+                            {% endif %}
+                        </p>
+
+                        <p class="text-xs text-slate-400 mt-2">
+                            {{ order.created_at|date:"d.m.Y H:i" }}
+                        </p>
+                    </div>
+
+                    <div class="sm:text-right">
+                        <p class="text-lg font-bold text-slate-900">
+                            {{ order.total_amount|floatformat:0 }} so‘m
+                        </p>
+                        <p class="text-sm text-water-600 mt-2 font-semibold">
+                            Tafsilotlar →
+                        </p>
+                    </div>
+
+                </div>
+            </a>
+        {% empty %}
+            <div class="water-card p-10 text-center">
+                <i class="fa-solid fa-box-open text-4xl text-slate-300"></i>
+                <h3 class="font-semibold text-slate-800 mt-4">
+                    Buyurtmalar mavjud emas
+                </h3>
+                <p class="text-sm text-slate-500 mt-1">
+                    Sizga hali buyurtma biriktirilmagan.
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
