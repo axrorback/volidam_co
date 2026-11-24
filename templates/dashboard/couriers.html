@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="water-page space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <p class="text-sm font-medium text-water-600 mb-1">
+                Boshqaruv paneli
+            </p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+                Kuryerlar
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Yetkazib berish xizmatidagi faol kuryerlar ro‘yxati.
+            </p>
+        </div>
+
+        <div class="water-card px-5 py-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-water-50 text-water-600 flex items-center justify-center">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500">Jami kuryerlar</p>
+                <p class="text-xl font-bold text-slate-900">
+                    {{ courier.count }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courier list -->
+    <div class="water-card overflow-hidden">
+
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h2 class="font-semibold text-slate-900">
+                    Kuryerlar ro‘yxati
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">
+                    Hozirda tizimda faol bo‘lgan kuryerlar
+                </p>
+            </div>
+
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">
+                {{ courier.count }} ta faol
+            </span>
+        </div>
+
+        {% if courier %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+                        <tr>
+                            <th class="px-5 py-4 font-semibold">#</th>
+                            <th class="px-5 py-4 font-semibold">Kuryer</th>
+                            <th class="px-5 py-4 font-semibold">Telefon raqami</th>
+                            <th class="px-5 py-4 font-semibold">Holati</th>
+                            <th class="px-5 py-4 font-semibold">Ro‘yxatdan o‘tgan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-slate-100">
+                        {% for courier in courier %}
+                            <tr class="hover:bg-slate-50/70 transition-colors">
+                                <td class="px-5 py-4 text-slate-400">
+                                    {{ forloop.counter }}
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-water-50 text-water-700 flex items-center justify-center font-bold">
+                                            {{ courier.full_name|first|upper }}
+                                        </div>
+
+                                        <div>
+                                            <p class="font-semibold text-slate-900">
+                                                {{ courier.full_name }}
+                                            </p>
+                                            <p class="text-xs text-slate-400">
+                                                ID: {{ courier.id|truncatechars:13 }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <a href="tel:+{{ courier.phone }}"
+                                       class="text-slate-700 hover:text-water-600 font-medium">
+                                        +{{ courier.phone }}
+                                    </a>
+                                </td>
+
+                                <td class="px-5 py-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Faol
+                                    </span>
+                                </td>
+
+                                <td class="px-5 py-4 text-slate-500">
+                                    {{ courier.created_at|date:"d.m.Y" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <div class="py-16 px-5 text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mb-4">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+
+                <h3 class="text-lg font-semibold text-slate-900">
+                    Hozircha kuryerlar mavjud emas
+                </h3>
+
+                <p class="text-sm text-slate-500 mt-2">
+                    Tizimda faol kuryerlar ro‘yxati hozircha bo‘sh.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
