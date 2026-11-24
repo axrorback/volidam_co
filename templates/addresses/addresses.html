@@ -1,0 +1,135 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-water-900">
+                Manzillarim
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">
+                Yetkazib berish manzillaringizni boshqaring
+            </p>
+        </div>
+
+        <a href="{% url 'address_create' %}"
+           class="px-4 py-3 rounded-xl bg-water-600 text-white font-medium hover:bg-water-700">
+            + Manzil qo'shish
+        </a>
+    </div>
+
+    {% if addresses %}
+        <div class="space-y-4">
+            {% for address in addresses %}
+
+                <div class="water-card p-5 rounded-2xl border border-gray-100">
+
+                    <div class="flex justify-between items-start gap-3">
+
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-water-50 flex items-center justify-center">
+                                {% if address.address_type == "home" %}
+                                    <span>🏠</span>
+                                {% elif address.address_type == "work" %}
+                                    <span>🏢</span>
+                                {% else %}
+                                    <span>📍</span>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <h3 class="font-semibold text-gray-900">
+                                    {{ address.title }}
+                                </h3>
+
+                                <p class="text-xs text-gray-500">
+                                    {{ address.get_address_type_display }}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if address.is_default %}
+                            <span class="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700">
+                                Asosiy manzil
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="mt-4 text-sm text-gray-600 space-y-1">
+                        <p>
+                            {{ address.region }}, {{ address.district }}
+                        </p>
+
+                        {% if address.mahalla %}
+                            <p>{{ address.mahalla }} mahallasi</p>
+                        {% endif %}
+
+                        <p>
+                            {{ address.street }} ko'chasi,
+                            {{ address.house }}-uy
+                            {% if address.apartment %}
+                                , {{ address.apartment }}-xonadon
+                            {% endif %}
+                        </p>
+
+                        {% if address.landmark %}
+                            <p class="text-gray-400">
+                                Mo'ljal: {{ address.landmark }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    {% if address.latitude and address.longitude %}
+                        <p class="text-xs text-green-600 mt-3">
+                            ✓ GPS koordinatalari saqlangan
+                        </p>
+                    {% else %}
+                        <p class="text-xs text-gray-400 mt-3">
+                            GPS koordinatalari kiritilmagan
+                        </p>
+                    {% endif %}
+
+                    <div class="border-t border-gray-100 mt-4 pt-4 flex justify-end">
+                        <form method="POST"
+                              action="{% url 'address_delete' address.pk %}"
+                              onsubmit="return confirm('Ushbu manzilni o‘chirmoqchimisiz?')">
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="text-sm text-red-500 hover:text-red-700">
+                                O'chirish
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+            {% endfor %}
+        </div>
+
+    {% else %}
+
+        <div class="water-card rounded-2xl p-10 text-center">
+            <div class="text-5xl mb-4">📍</div>
+
+            <h3 class="text-lg font-semibold text-gray-800">
+                Hozircha manzillar yo'q
+            </h3>
+
+            <p class="text-sm text-gray-500 mt-2">
+                Yetkazib berish uchun birinchi manzilingizni qo'shing.
+            </p>
+
+            <a href="{% url 'address_create' %}"
+               class="inline-block mt-5 px-6 py-3 rounded-xl bg-water-600 text-white">
+                Manzil qo'shish
+            </a>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+
+    <div class="water-card rounded-3xl p-6 md:p-8">
+
+        <div class="flex flex-wrap justify-between gap-4">
+
+            <div>
+                <p class="text-sm text-gray-500">
+                    Buyurtma raqami
+                </p>
+
+                <h1 class="text-2xl font-bold text-water-900">
+                    {{ order.order_number }}
+                </h1>
+            </div>
+
+            <div class="text-right">
+                <p class="text-sm text-gray-500">
+                    Buyurtma sanasi
+                </p>
+
+                <p class="font-medium">
+                    {{ order.created_at|date:"d.m.Y H:i" }}
+                </p>
+            </div>
+
+        </div>
+
+        <hr class="my-6">
+
+        <h2 class="font-bold text-lg mb-4">
+            Buyurtma holati
+        </h2>
+
+        <div class="bg-water-50 rounded-xl p-4">
+
+            <p class="font-semibold text-water-800">
+                {{ order.get_status_display }}
+            </p>
+
+            <p class="text-sm text-gray-500 mt-1">
+                To'lov:
+                {{ order.get_payment_status_display }}
+            </p>
+
+        </div>
+
+        <h2 class="font-bold text-lg mt-7 mb-4">
+            Mahsulotlar
+        </h2>
+
+        {% for item in order.items.all %}
+
+            <div class="flex justify-between gap-3 py-3 border-b">
+
+                <div>
+                    <p class="font-medium">
+                        {{ item.product_name }}
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                        {{ item.quantity }} x
+                        {{ item.unit_price }} so'm
+                    </p>
+                </div>
+
+                <p class="font-semibold whitespace-nowrap">
+                    {{ item.total_price }} so'm
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+        <div class="flex justify-between mt-5">
+            <span class="font-bold">Jami:</span>
+
+            <span class="text-xl font-bold text-water-800">
+                {{ order.total_amount }} so'm
+            </span>
+        </div>
+
+        <h2 class="font-bold text-lg mt-7 mb-3">
+            Yetkazib berish manzili
+        </h2>
+
+        <div class="bg-gray-50 rounded-xl p-4 text-sm text-gray-600">
+
+            {{ order.address.title }}<br>
+            {{ order.address.region }},
+            {{ order.address.district }},
+            {{ order.address.street }},
+            {{ order.address.house }}
+
+            {% if order.address.apartment %}
+                , {{ order.address.apartment }}
+            {% endif %}
+
+        </div>
+
+        <h2 class="font-bold text-lg mt-7 mb-3">
+            To'lov ma'lumotlari
+        </h2>
+
+        <div class="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
+
+            <p>
+                To'lov turi:
+                <strong>{{ order.get_payment_method_display }}</strong>
+            </p>
+
+            <p>
+                To'lov holati:
+                <strong>{{ order.get_payment_status_display }}</strong>
+            </p>
+
+        </div>
+
+        <a href="{% url 'catalog' %}"
+           class="block text-center bg-water-600 hover:bg-water-700 text-white rounded-xl py-3 mt-7 font-semibold">
+            Katalogga qaytish
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+
+{% block title %}Profil yaratish — Volidam{% endblock %}
+
+{% block content %}
+<section class="min-h-[72vh] flex items-center justify-center px-4 py-8 sm:py-12">
+
+    <div class="w-full max-w-md relative">
+
+        <div class="pointer-events-none absolute -top-10 -left-8 w-36 h-36 rounded-full bg-water-200/45 blur-2xl"></div>
+        <div class="pointer-events-none absolute -bottom-10 -right-8 w-36 h-36 rounded-full bg-sand-200/45 blur-2xl"></div>
+
+        <div class="water-card relative p-6 sm:p-9">
+
+            <div class="text-center mb-7">
+
+                <div class="mx-auto mb-4 grid place-items-center w-14 h-14 rounded-full bg-gradient-to-br from-water-500 to-water-700 text-sand-200 shadow-pill">
+                    <svg class="w-7 h-7" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M5 21a7 7 0 0 1 14 0"/>
+                    </svg>
+                </div>
+
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-water-900">
+                    Profil yaratish
+                </h1>
+
+                <p class="text-sm text-water-600 mt-2">
+                    Davom etish uchun ism va familiyangizni kiriting.
+                </p>
+
+            </div>
+
+            {% if error %}
+                <div class="mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-semibold text-water-800 mb-2 pl-3">
+                        Telefon raqami
+                    </label>
+
+                    <input
+                        type="text"
+                        value="+{{ phone }}"
+                        readonly
+                        class="w-full rounded-full bg-water-50 border border-water-200 px-5 py-3.5 text-water-700 font-medium outline-none"
+                    >
+                </div>
+
+                <div>
+                    <label for="full_name"
+                           class="block text-sm font-semibold text-water-800 mb-2 pl-3">
+                        Ism va familiya
+                    </label>
+
+                    <input
+                        type="text"
+                        name="full_name"
+                        id="full_name"
+                        placeholder="Masalan: Axror Ibrokhimov"
+                        value="{{ full_name|default:'' }}"
+                        autocomplete="name"
+                        maxlength="255"
+                        required
+                        class="w-full rounded-full bg-white/90 border border-water-200 px-5 py-3.5 text-water-900 outline-none focus:border-water-500 focus:ring-4 focus:ring-water-200/50"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full rounded-full bg-gradient-to-r from-water-500 to-water-600 hover:from-water-600 hover:to-water-700 active:scale-[0.98] text-white font-semibold py-3.5 px-6 shadow-pill transition duration-200">
+                    Profilni yaratish
+                </button>
+
+            </form>
+
+            <div class="mt-6 pt-5 border-t border-water-100 text-center">
+                <p class="text-xs text-water-600">
+                    Telefon raqamingiz tasdiqlangan.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

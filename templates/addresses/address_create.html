@@ -1,0 +1,182 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+
+    <div class="mb-7">
+        <a href="{% url 'address_list' %}"
+           class="text-sm text-water-600">
+            ← Manzillarimga qaytish
+        </a>
+
+        <h1 class="text-2xl font-bold text-water-900 mt-4">
+            Yangi manzil qo'shish
+        </h1>
+
+        <p class="text-sm text-gray-500 mt-1">
+            Yetkazib berish uchun manzilingizni kiriting.
+        </p>
+    </div>
+
+    <form method="POST" class="water-card rounded-2xl p-6 space-y-5">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="bg-red-50 text-red-600 rounded-xl p-4 text-sm">
+                Iltimos, kiritilgan ma'lumotlarni tekshiring.
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Manzil nomi
+            </label>
+            {{ form.title }}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-2">
+                Manzil turi
+            </label>
+            {{ form.address_type }}
+        </div>
+
+        <div class="border-t border-gray-100 pt-5">
+            <h3 class="font-semibold mb-4">
+                Manzil ma'lumotlari
+            </h3>
+
+            <div class="space-y-4">
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Viloyat
+                    </label>
+                    {{ form.region }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Tuman / Shahar
+                    </label>
+                    {{ form.district }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Mahalla
+                    </label>
+                    {{ form.mahalla }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Ko'cha
+                    </label>
+                    {{ form.street }}
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Uy raqami
+                        </label>
+                        {{ form.house }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Xonadon
+                        </label>
+                        {{ form.apartment }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Mo'ljal
+                    </label>
+                    {{ form.landmark }}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-5">
+            <h3 class="font-semibold mb-2">
+                GPS joylashuv
+            </h3>
+
+            <p class="text-sm text-gray-500 mb-4">
+                Yetkazib beruvchi manzilingizni aniq topishi uchun GPS joylashuvingizni yuboring.
+            </p>
+
+            {{ form.latitude }}
+            {{ form.longitude }}
+
+            <button type="button"
+                    onclick="getLocation()"
+                    class="w-full border border-water-600 text-water-700 rounded-xl py-3 font-medium hover:bg-water-50">
+                📍 GPS orqali joylashuvni aniqlash
+            </button>
+
+            <p id="gps-status" class="text-sm mt-3 text-gray-500"></p>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-water-600 hover:bg-water-700 text-white rounded-xl py-3 font-semibold">
+            Manzilni saqlash
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+function getLocation() {
+    const status = document.getElementById("gps-status");
+
+    const latitude = document.getElementById("id_latitude");
+    const longitude = document.getElementById("id_longitude");
+
+    if (!navigator.geolocation) {
+        status.textContent = "Brauzeringiz GPS xizmatini qo'llab-quvvatlamaydi.";
+        return;
+    }
+
+    status.textContent = "Joylashuv aniqlanmoqda...";
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            latitude.value = position.coords.latitude;
+            longitude.value = position.coords.longitude;
+
+            status.textContent =
+                "✓ GPS joylashuvi muvaffaqiyatli aniqlandi.";
+            status.className = "text-sm mt-3 text-green-600";
+        },
+
+        function(error) {
+            const messages = {
+                1: "Joylashuvga ruxsat berilmadi.",
+                2: "Joylashuvni aniqlab bo'lmadi.",
+                3: "GPS so'rovi vaqti tugadi."
+            };
+
+            status.textContent =
+                messages[error.code] || "GPS xatoligi yuz berdi.";
+            status.className = "text-sm mt-3 text-red-500";
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+</script>
+
+{% endblock %}

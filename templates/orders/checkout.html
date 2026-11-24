@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+    <h1 class="text-2xl font-bold text-water-900 mb-7">
+        Buyurtmani rasmiylashtirish
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7">
+
+        <!-- Checkout form -->
+        <div class="lg:col-span-2">
+
+            <form method="POST" action="{% url 'create_order' %}">
+                {% csrf_token %}
+
+                <!-- Address -->
+                <div class="water-card rounded-2xl p-5 mb-5">
+
+                    <h2 class="font-bold text-lg mb-4">
+                        1. Yetkazib berish manzili
+                    </h2>
+
+                    <div class="space-y-3">
+
+                        {% for address in addresses %}
+
+                            <label class="flex gap-3 border rounded-xl p-4 cursor-pointer hover:bg-water-50">
+
+                                <input
+                                    type="radio"
+                                    name="address"
+                                    value="{{ address.id }}"
+                                    {% if address.is_default or forloop.first %}checked{% endif %}
+                                    required
+                                >
+
+                                <div>
+                                    <p class="font-semibold">
+                                        {{ address.title }}
+                                    </p>
+
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        {{ address.region }},
+                                        {{ address.district }},
+                                        {{ address.street }},
+                                        {{ address.house }}
+                                    </p>
+
+                                    {% if address.landmark %}
+                                        <p class="text-xs text-gray-400 mt-1">
+                                            Mo'ljal: {{ address.landmark }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <a href="{% url 'address_create' %}"
+                       class="inline-block text-sm text-water-700 mt-4">
+                        + Yangi manzil qo'shish
+                    </a>
+
+                </div>
+
+                <!-- Payment method -->
+                <div class="water-card rounded-2xl p-5 mb-5">
+
+                    <h2 class="font-bold text-lg mb-4">
+                        2. To'lov usuli
+                    </h2>
+
+                    <div class="space-y-3">
+
+                        <label class="flex items-center gap-3 border rounded-xl p-4 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="payment_method"
+                                value="cash"
+                                checked
+                            >
+
+                            <div>
+                                <p class="font-semibold">Naqd pul</p>
+                                <p class="text-xs text-gray-500">
+                                    Yetkazib berilganda to'lash
+                                </p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 border rounded-xl p-4 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="payment_method"
+                                value="click"
+                            >
+
+                            <div>
+                                <p class="font-semibold">Click</p>
+                                <p class="text-xs text-gray-500">
+                                    Onlayn to'lov
+                                </p>
+                            </div>
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- Note -->
+                <div class="water-card rounded-2xl p-5">
+
+                    <label class="block font-semibold mb-3">
+                        Izoh (ixtiyoriy)
+                    </label>
+
+                    <textarea
+                        name="note"
+                        rows="3"
+                        class="w-full border rounded-xl p-3"
+                        placeholder="Buyurtma bo'yicha qo'shimcha izoh..."
+                    ></textarea>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-water-600 hover:bg-water-700 text-white rounded-xl py-4 font-semibold mt-6">
+                    Buyurtma berish
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- Order summary -->
+        <div>
+
+            <div class="water-card rounded-2xl p-5 sticky top-5">
+
+                <h2 class="font-bold text-lg mb-4">
+                    Buyurtma tarkibi
+                </h2>
+
+                {% for item in cart_items %}
+
+                    <div class="flex justify-between gap-3 py-3 border-b">
+
+                        <div>
+                            <p class="text-sm font-medium">
+                                {{ item.product.name }}
+                            </p>
+
+                            <p class="text-xs text-gray-500">
+                                {{ item.quantity }} x
+                                {{ item.product.price }} so'm
+                            </p>
+                        </div>
+
+                        <p class="text-sm font-semibold whitespace-nowrap">
+                            {{ item.total_price }} so'm
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+                <div class="flex justify-between mt-5">
+                    <span class="font-semibold">Jami:</span>
+
+                    <span class="text-xl font-bold text-water-800">
+                        {{ total_amount }} so'm
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %} Buyurtmalarim {% endblock %}
+{% block content %}
+
+{% for c in orders %}
+    <a href="{% url 'order_detail' c.order_number %}">{{ c.order_number }} - {{ c.status }} -- {{ c.total_amount }} - {{ c.created_at }}</a><br>
+
+{% empty %}
+    <p>Buyurtmalar mavjud emas</p>
+{% endfor %}
+
+{% endblock %}

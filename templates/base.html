@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#F2F9FB">
+
+    <title>{% block title %}Volidam — Suv yetkazib berish{% endblock %}</title>
+
+    <meta name="description"
+          content="Volidam — sifatli ichimlik suvini uyingizga yetkazib berish xizmati.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        water: {
+                            50: '#F2F9FB',
+                            100: '#E1F2F7',
+                            200: '#C3E4EE',
+                            300: '#92CEDF',
+                            400: '#5BB0CA',
+                            500: '#3A94B3',
+                            600: '#2A7A96',
+                            700: '#1F5F76',
+                            800: '#18495C',
+                            900: '#133747',
+                        },
+                        sand: {
+                            50: '#FCF8EE',
+                            100: '#F7EED8',
+                            200: '#F0DFB8',
+                            400: '#E2BE72',
+                            500: '#CFA44E',
+                        }
+                    },
+                    boxShadow: {
+                        water: '0 10px 30px -12px rgba(42, 122, 150, 0.14), 0 2px 8px -2px rgba(42, 122, 150, 0.06)',
+                        pill: '0 8px 22px -6px rgba(42, 122, 150, 0.28)',
+                        dock: '0 14px 36px -8px rgba(19, 55, 71, 0.22), 0 2px 10px -2px rgba(42, 122, 150, 0.10)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html, body {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #F2F9FB;
+            background-image:
+                radial-gradient(at 8% 0%, rgba(195, 228, 238, 0.50) 0px, transparent 52%),
+                radial-gradient(at 92% 8%, rgba(240, 223, 184, 0.32) 0px, transparent 46%),
+                radial-gradient(at 50% 100%, rgba(225, 242, 247, 0.65) 0px, transparent 55%);
+            background-attachment: fixed;
+        }
+
+        /* iPhone / zamonaviy telefonlar pastki chizig'i uchun xavfsiz masofa */
+        .pb-safe {
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+        }
+
+        :focus-visible {
+            outline: 3px solid #E2BE72;
+            outline-offset: 2px;
+            border-radius: 9999px;
+        }
+
+        /* Ichki sahifalar uchun tayyor suv uslubidagi kartochka va tugma */
+        .water-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 1.75rem;
+            box-shadow: 0 10px 30px -12px rgba(42, 122, 150, 0.14), 0 2px 8px -2px rgba(42, 122, 150, 0.06);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="text-water-900 antialiased min-h-screen flex flex-col selection:bg-water-200 selection:text-water-900">
+
+    <!-- Top Floating Oval Navbar -->
+    <header class="sticky top-0 z-40 px-3 sm:px-6 pt-2.5 sm:pt-4">
+        <div class="max-w-7xl mx-auto h-14 sm:h-16 px-2.5 sm:px-5 rounded-full bg-white/82 backdrop-blur-xl border border-white/95 shadow-water flex items-center justify-between gap-2">
+
+            <!-- Brand Logo -->
+            <a href="/" class="flex items-center gap-2.5 pl-0.5 group shrink-0">
+                <span class="relative grid place-items-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-water-500 to-water-700 text-sand-200 shadow-pill group-hover:scale-105 active:scale-95 transition duration-200">
+                    <span class="absolute top-1.5 left-2 w-2 h-2 rounded-full bg-white/30 blur-[1px]"></span>
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 2.5c3.2 4.1 6.5 7.9 6.5 12a6.5 6.5 0 0 1-13 0c0-4.1 3.3-7.9 6.5-12z"/>
+                    </svg>
+                </span>
+                <div class="flex flex-col leading-tight">
+                    <span class="text-base sm:text-xl font-extrabold tracking-tight text-water-800">Volidam</span>
+                    <span class="text-[10px] sm:text-[11px] font-medium text-water-500">toza ichimlik suvi</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-2">
+                <a href="/"
+                   class="px-4 py-2 rounded-full text-sm font-semibold text-water-700 hover:bg-water-50 hover:text-water-900 transition">
+                    Asosiy
+                </a>
+
+                {% block nav_links %}{% endblock %}
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'cart_detail' %}">
+                    Savatcham
+                    </a>
+                    <a href="{% url 'order_list' %}"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-water-800 bg-water-50 hover:bg-water-100 border border-water-200/70 transition">
+                        Buyurtmalarim
+                    </a>
+                    <a href="{% url 'profile' %}"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-water-800 bg-water-50 hover:bg-water-100 border border-water-200/70 transition">
+                        <span class="w-2 h-2 rounded-full bg-water-500"></span>
+                        <span>Profil</span>
+                    </a>
+
+                    <form method="post" action="#">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="px-4 py-2 rounded-full text-sm font-semibold text-rose-600 hover:bg-rose-50 transition">
+                            Chiqish
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}"
+                       class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-water-500 to-water-600 text-white text-sm font-semibold shadow-pill hover:from-water-600 hover:to-water-700 active:scale-[0.98] transition">
+                        <span>Kirish</span>
+                        <span class="w-2 h-2 rounded-full bg-sand-400"></span>
+                    </a>
+                {% endif %}
+            </nav>
+
+            <!-- Mobile Top Quick Action (o'ng tomonda ixcham tugma) -->
+            <div class="flex md:hidden items-center gap-1.5">
+                {% if user.is_authenticated %}
+                    <a href={% url 'profile' %}
+                       class="inline-flex items-center gap-1.5 pl-2 pr-3 py-1.5 rounded-full bg-water-50 border border-water-200/80 text-xs font-semibold text-water-800 active:scale-95 transition">
+                        <span class="grid place-items-center w-6 h-6 rounded-full bg-water-500 text-white text-[11px] font-bold">
+                            {{ user.full_name|slice:":1"|upper }}
+                        </span>
+                        <span>Profil</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}"
+                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-water-500 to-water-600 text-white text-xs font-semibold shadow-pill active:scale-95 transition">
+                        <span>Kirish</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-sand-400"></span>
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full">
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-5 space-y-2.5">
+                {% for message in messages %}
+                    <div role="alert"
+                         class="flex items-start sm:items-center gap-3 rounded-3xl border px-4 sm:px-5 py-3.5 text-sm font-medium backdrop-blur-md shadow-water
+                         {% if message.tags == 'error' %}bg-rose-50/90 border-rose-200/80 text-rose-800
+                         {% elif message.tags == 'success' %}bg-emerald-50/90 border-emerald-200/80 text-emerald-800
+                         {% elif message.tags == 'warning' %}bg-sand-50/95 border-sand-200 text-water-900
+                         {% else %}bg-water-50/90 border-water-200 text-water-800{% endif %}">
+                        <span class="mt-1.5 sm:mt-0 w-2.5 h-2.5 rounded-full shrink-0
+                            {% if message.tags == 'error' %}bg-rose-400
+                            {% elif message.tags == 'success' %}bg-emerald-500
+                            {% elif message.tags == 'warning' %}bg-sand-500
+                            {% else %}bg-water-500{% endif %}"></span>
+                        <span class="leading-snug">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer (Suv to'lqini bilan, mobilda pastki menuga tegmaydigan qilib moslangan) -->
+    <footer class="mt-14 sm:mt-20 relative">
+        <!-- Yumshoq 2 qavatli suv to'lqini -->
+        <div class="w-full overflow-hidden leading-none text-water-800 -mb-px">
+            <svg class="relative block w-full h-8 sm:h-14" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+                <path fill="currentColor" fill-opacity="0.18"
+                      d="M0,36 C240,80 480,0 720,36 C960,72 1200,12 1440,42 L1440,80 L0,80 Z"></path>
+                <path fill="currentColor"
+                      d="M0,48 C300,8 600,84 960,44 C1180,20 1320,38 1440,52 L1440,80 L0,80 Z"></path>
+            </svg>
+        </div>
+
+        <!-- pb-28 md:pb-10 -> mobilda pastki suzuvchi menyu footerni yopib qo'ymasligi uchun -->
+        <div class="bg-gradient-to-b from-water-800 to-water-900 text-white pb-28 md:pb-10 pt-7 sm:pt-9">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-5">
+
+                <div class="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+                    <span class="grid place-items-center w-10 h-10 rounded-full bg-white/10 border border-white/15 text-sand-400 shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2.5c3.2 4.1 6.5 7.9 6.5 12a6.5 6.5 0 0 1-13 0c0-4.1 3.3-7.9 6.5-12z"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <span class="font-bold text-base tracking-tight text-white">Volidam</span>
+                        <span class="block text-xs text-water-200/80">Tabiiy va toza ichimlik suvi yetkazib berish</span>
+                    </div>
+                </div>
+
+                <p class="text-xs sm:text-sm text-water-200/90 text-center px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                    © {% now "Y" %} Volidam. Barcha huquqlar himoyalangan.
+                </p>
+
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Floating Dock (faqat telefonlarda ko'rinadi) -->
+    <nav aria-label="Mobil navigatsiya"
+         class="md:hidden fixed bottom-0 inset-x-0 z-50 px-4 pb-safe pointer-events-none">
+        <div class="max-w-md mx-auto pointer-events-auto rounded-full bg-white/88 backdrop-blur-xl border border-white/95 shadow-dock p-1.5 flex items-center justify-around gap-1">
+
+            <!-- Asosiy -->
+            <a href="/"
+               class="flex-1 flex flex-col items-center justify-center py-2 rounded-full transition active:scale-95
+               {% if request.path == '/' %}bg-water-100/90 text-water-700{% else %}text-water-600/80 hover:bg-water-50{% endif %}">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 10.5L12 3l9 7.5"/>
+                    <path d="M5 9.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19V9.5"/>
+                </svg>
+                <span class="text-[11px] font-semibold mt-0.5">Asosiy</span>
+            </a>
+
+            {% block mobile_nav_links %}{% endblock %}
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'cart_detail' %}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <line x1="8.5" y1="7" x2="8.5" y2="7"/>
+                        <line x1="9.5" y1="7" x2="9.5" y2="7"/>
+                        <span class="text-[11px] font-semibold">Savatcha</span>
+                    </svg>
+                </a>
+                <!-- Profil -->
+                <a href="{% url 'profile' %}"
+                   class="flex-1 flex flex-col items-center justify-center py-2 rounded-full transition active:scale-95
+                   {% if 'profile' in request.path %}bg-water-100/90 text-water-700{% else %}text-water-600/80 hover:bg-water-50{% endif %}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/>
+                    </svg>
+                    <span class="text-[11px] font-semibold mt-0.5">Profil</span>
+                </a>
+
+                <!-- Chiqish -->
+                <form method="post" action="#" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="w-full flex flex-col items-center justify-center py-2 rounded-full text-rose-500 hover:bg-rose-50 transition active:scale-95">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span class="text-[11px] font-semibold mt-0.5">Chiqish</span>
+                    </button>
+                </form>
+            {% else %}
+                <!-- Kirish -->
+                <a href="{% url 'login' %}"
+                   class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-gradient-to-r from-water-500 to-water-600 text-white shadow-pill active:scale-95 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    <span class="text-xs font-semibold">Kirish</span>
+                </a>
+            {% endif %}
+
+        </div>
+    </nav>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
