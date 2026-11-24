@@ -1,0 +1,56 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="water-page space-y-6">
+
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">
+            Buyurtmalar tarixi
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+            Siz tomonidan yetkazilgan buyurtmalar.
+        </p>
+    </div>
+
+    <div class="water-card overflow-hidden">
+        {% for order in orders %}
+            <a href="{% url 'courier:order_detail' order.order_number %}"
+               class="block p-5 border-b border-slate-100 hover:bg-slate-50 transition">
+
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-3">
+                    <div>
+                        <p class="font-bold text-slate-900">
+                            #{{ order.order_number }}
+                        </p>
+                        <p class="text-sm text-slate-600 mt-1">
+                            {{ order.user.full_name }}
+                        </p>
+                        <p class="text-xs text-slate-400 mt-2">
+                            {{ order.delivered_at|date:"d.m.Y H:i" }}
+                        </p>
+                    </div>
+
+                    <div class="sm:text-right">
+                        <p class="font-bold text-slate-900">
+                            {{ order.total_amount|floatformat:0 }} so‘m
+                        </p>
+                        <span class="text-xs text-emerald-600 font-semibold">
+                            <i class="fa-solid fa-check-circle"></i>
+                            Yetkazilgan
+                        </span>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="p-10 text-center">
+                <i class="fa-solid fa-clock-rotate-left text-4xl text-slate-300"></i>
+                <p class="font-semibold text-slate-700 mt-4">
+                    Hozircha tarix bo‘sh
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
