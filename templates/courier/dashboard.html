@@ -1,0 +1,112 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="water-page space-y-6">
+
+    <div>
+        <p class="text-sm text-water-600 font-medium">Kuryer kabineti</p>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+            Assalomu alaykum, {{ request.user.full_name }}!
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+            Bugungi yetkazib berish faoliyatingiz.
+        </p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <div class="water-card p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-500">Faol buyurtmalar</p>
+                <i class="fa-solid fa-box text-water-600 text-xl"></i>
+            </div>
+            <p class="text-3xl font-bold mt-3">{{ active_count }}</p>
+        </div>
+
+        <div class="water-card p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-500">Bugungi buyurtmalar</p>
+                <i class="fa-solid fa-calendar-day text-water-600 text-xl"></i>
+            </div>
+            <p class="text-3xl font-bold mt-3">{{ today_count }}</p>
+        </div>
+
+        <div class="water-card p-5">
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-slate-500">Yetkazilgan</p>
+                <i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>
+            </div>
+            <p class="text-3xl font-bold mt-3">{{ completed_count }}</p>
+        </div>
+
+    </div>
+
+    <!-- Active orders -->
+    <div class="water-card overflow-hidden">
+
+        <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+            <div>
+                <h2 class="font-bold text-lg text-slate-900">
+                    Faol buyurtmalar
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">
+                    Sizga biriktirilgan buyurtmalar
+                </p>
+            </div>
+
+            <a href="{% url 'courier:orders' %}"
+               class="text-sm font-semibold text-water-600 hover:text-water-700">
+                Barchasi →
+            </a>
+        </div>
+
+        {% for order in active_orders %}
+            <a href="{% url 'courier:order_detail' order.order_number %}"
+               class="block p-5 border-b border-slate-100 hover:bg-slate-50 transition">
+
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-3">
+                    <div>
+                        <p class="font-bold text-slate-900">
+                            #{{ order.order_number }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            {{ order.user.full_name }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            {% if order.address %}
+                                {{ order.address.district }},
+                                {{ order.address.street }},
+                                {{ order.address.house }}
+                            {% else %}
+                                Manzil ko‘rsatilmagan
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="sm:text-right">
+                        <p class="font-bold text-slate-900">
+                            {{ order.total_amount|floatformat:0 }} so‘m
+                        </p>
+                        <span class="text-xs text-water-700 font-semibold">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="p-10 text-center">
+                <i class="fa-solid fa-box-open text-4xl text-slate-300"></i>
+                <p class="font-semibold text-slate-700 mt-4">
+                    Hozircha faol buyurtmalar yo‘q
+                </p>
+                <p class="text-sm text-slate-500 mt-1">
+                    Yangi buyurtma biriktirilganda shu yerda ko‘rinadi.
+                </p>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}
