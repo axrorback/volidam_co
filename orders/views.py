@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 from cart.models import Cart, CartItem
 from catalog.models import Product
 from addresses.models import Address
+from dashboard.events import notify_admin_new_order
 
 from .models import Order, OrderItem, Payment
 
@@ -167,7 +168,7 @@ def create_order(request):
         )
 
     cart.items.all().delete()
-
+    transaction.on_commit(lambda: notify_admin_new_order(order))
     messages.success(
         request,
         f"Buyurtmangiz yaratildi: {order.order_number}"
